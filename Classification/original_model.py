@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as pp
 from sklearn import preprocessing
@@ -24,7 +25,7 @@ pp.title('Inputs')
 pp.plot(df.index, xdf, label=list(xdf.columns.values))
 pp.legend()
 
-print(xdf.corr())
+# print(xdf.corr())
 
 # Targets
 # convert output into a categorical variable
@@ -33,10 +34,23 @@ df['Species'] = preprocessing.LabelEncoder().fit_transform(df['Species'])
 # converts numbers into categorical variable: 
 y = tf.keras.utils.to_categorical(df['Species'].values)
 
+
 """
-TRAIN AND TEST DATA
+TRANING AND TEST
 """
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+test_per = 0.2              # % of data used for model testing
+N, D = np.shape(X)          # N: samples and dimensions
+N_test  = int(N*test_per)
+N_train = int(N - N_test)
+X_train, y_train = X[:-N_test], y[:-N_test]
+X_test, y_test = X[N_train:-1], y[N_train:-1]
+
+# save datasets sizes as a CSV file to use them in other files
+ndf = pd.DataFrame({'N': N, 'N_train': N_train, 'N_test': N_test}, index=[1])
+#                       ^
+#               always space before :
+ndf.to_csv('trained models/train_test_sizes.csv')
+
 
 """
 ARCHITECTURE
@@ -45,7 +59,6 @@ from keras.layers import Dense as dense
 import numpy as np
 
 K = 3                               # Number of categories
-N_train, D = np.shape(X_train)      # N: samples and dimensions
 
 model = keras.models.Sequential()
 
@@ -55,6 +68,7 @@ model.add(dense(units=3, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', metrics='accuracy')
 model.summary()
+
 
 """
 TRAINING
@@ -66,9 +80,10 @@ from keras.callbacks import EarlyStopping
 
 B = int(N_train/1)
 epoch = 300
-val_split = 0.2
+val_split = 0.2             # of the training data used for model 
+                            # validation after each epoch
 
-stop = EarlyStopping(monitor='val_accuracy', patience=50, mode='max')
+stop = EarlyStopping(monitor='val_accuracy', patience=200, mode='max')
 
 trained = model.fit(X_train, y_train,
                     batch_size=B, epochs=epoch, validation_split=val_split,
@@ -78,6 +93,7 @@ trained = model.fit(X_train, y_train,
 pp.figure()
 pd.DataFrame(trained.history)["accuracy"].plot(figsize=(8, 5))
 plt.title("Accuracy improvements with Epoch")
+
 
 """
 PREDICTIONS

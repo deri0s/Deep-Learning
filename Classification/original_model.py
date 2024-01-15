@@ -11,10 +11,6 @@ PRE-PROCESSING
 """
 # read data
 df = pd.read_csv('iris.csv')
-# print(df.head(5))
-
-#check for nan and null values
-# print(pd.isnull(df).sum())
 
 # Inputs
 xdf = df.drop(['Species'], axis=1)
@@ -24,8 +20,6 @@ pp.figure()
 pp.title('Inputs')
 pp.plot(df.index, xdf, label=list(xdf.columns.values))
 pp.legend()
-
-# print(xdf.corr())
 
 # Targets
 # convert output into a categorical variable
@@ -40,16 +34,11 @@ TRANING AND TEST
 """
 test_per = 0.2              # % of data used for model testing
 N, D = np.shape(X)          # N: samples and dimensions
-N_test  = int(N*test_per)
-N_train = int(N - N_test)
-X_train, y_train = X[:-N_test], y[:-N_test]
-X_test, y_test = X[N_train:-1], y[N_train:-1]
 
-# save datasets sizes as a CSV file to use them in other files
-ndf = pd.DataFrame({'N': N, 'N_train': N_train, 'N_test': N_test}, index=[1])
-#                       ^
-#               always space before :
-ndf.to_csv('trained models/train_test_sizes.csv')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_per,
+                                                    shuffle=True, random_state=1)
+
+N_train = len(y_train)
 
 
 """
@@ -78,12 +67,12 @@ Define model "hyperparameters"
 import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
 
-B = int(N_train/1)
+B = int(N_train/2)
 epoch = 300
 val_split = 0.2             # of the training data used for model 
                             # validation after each epoch
 
-stop = EarlyStopping(monitor='val_accuracy', patience=200, mode='max')
+stop = EarlyStopping(monitor='val_accuracy', patience=100, mode='max')
 
 trained = model.fit(X_train, y_train,
                     batch_size=B, epochs=epoch, validation_split=val_split,
@@ -102,6 +91,6 @@ print('\n Model accuracy \n')
 model.evaluate(X_test, y_test)
 
 # save model
-model.save('original')
+model.save('trained models/original')
 
 pp.show()

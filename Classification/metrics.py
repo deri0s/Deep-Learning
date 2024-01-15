@@ -19,8 +19,8 @@ X = xdf.to_numpy()
 cat = preprocessing.LabelEncoder().fit(df['Species'])
 y = tf.keras.utils.to_categorical(cat.transform(df['Species']))
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
-
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                    shuffle=True, random_state=1)
 
 """
 METRICS
@@ -36,13 +36,15 @@ pred_labels = np.argmax(yp, axis=1)
 true_labels = np.argmax(y_test, axis=1)
 
 print('true-labels: \n', true_labels, '\npred-labels: \n', pred_labels)
-# # confucsion matrix
-# cm = confusion_matrix(true_labels, pred_labels)
-# df_cm = pd.DataFrame(cm, index=df.Species.unique(), columns=df.Species.unique())
 
-# pp.figure()
-# sb.heatmap(df_cm, annot=True)
-# pp.title('Without standardising inputs \nAccuracy:{0:.3f}'.format(accuracy_score(true_labels, pred_labels)))
-# pp.ylabel('True label')
-# pp.xlabel('Predicted label')
-# pp.show()
+# confucsion matrix
+cm = confusion_matrix(true_labels, pred_labels)
+labels = df.Species.unique()
+df_cm = pd.DataFrame(cm, index=labels, columns=labels)
+
+pp.figure()
+sb.heatmap(df_cm, annot=True)
+pp.title('Without standardising inputs \nAccuracy:{0:.3f}'.format(accuracy_score(true_labels, pred_labels)))
+pp.ylabel('True label')
+pp.xlabel('Predicted label')
+pp.show()

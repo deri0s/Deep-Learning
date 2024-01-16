@@ -12,18 +12,22 @@ PRE-PROCESSING
 # read data
 df = pd.read_csv('iris.csv')
 
-name='original'
+name='standardised'
 
 # Inputs
 xdf = df.drop(['Species'], axis=1)
+
 if name == 'dim_reduction':
     xdf.drop('Petal.Length', axis=1, inplace=True)
+    X = xdf.to_numpy()
 
-xdf = df.drop(['Species'], axis=1)
+elif name == 'standardised':
+    xdf.drop('Petal.Length', axis=1, inplace=True)
+    ss = preprocessing.StandardScaler()
+    X = ss.fit_transform(xdf)
 
-# from 1_data_analysis we know that Petal width can be eliminated
-xdf.drop('Petal.Length', axis=1, inplace=True)
-X = xdf.to_numpy()
+else:   # Original inputs
+    X = xdf.to_numpy()
 
 # Targets
 # convert output into a categorical variable
@@ -95,6 +99,6 @@ print('\n Model accuracy \n')
 model.evaluate(X_test, y_test)
 
 # save model
-# model.save('trained models/' + name)
+model.save('trained models/' + name)
 
 pp.show()

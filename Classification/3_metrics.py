@@ -11,14 +11,21 @@ PRE-PROCESSING
 # read data
 df = pd.read_csv('iris.csv')
 
-name='original'
+name='standardised'
 
 # Inputs
 xdf = df.drop(['Species'], axis=1)
 if name == 'dim_reduction':
     xdf.drop('Petal.Length', axis=1, inplace=True)
+    X = xdf.to_numpy()
 
-X = xdf.to_numpy()
+elif name == 'standardised':
+    xdf.drop('Petal.Length', axis=1, inplace=True)
+    ss = preprocessing.StandardScaler()
+    X = ss.fit_transform(xdf)
+
+else:   # Original inputs
+    X = xdf.to_numpy()
 
 # Targets
 cat = preprocessing.LabelEncoder().fit(df['Species'])
@@ -49,7 +56,7 @@ df_cm = pd.DataFrame(cm, index=labels, columns=labels)
 
 pp.figure()
 sb.heatmap(df_cm, annot=True)
-pp.title('Without standardising inputs \nAccuracy:{0:.3f}'.format(accuracy_score(true_labels, pred_labels)))
+pp.title(name + ': Accuracy:{0:.3f}'.format(accuracy_score(true_labels, pred_labels)))
 pp.ylabel('True label')
 pp.xlabel('Predicted label')
 pp.show()

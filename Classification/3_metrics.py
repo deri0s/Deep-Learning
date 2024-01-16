@@ -11,8 +11,13 @@ PRE-PROCESSING
 # read data
 df = pd.read_csv('iris.csv')
 
+name='original'
+
 # Inputs
 xdf = df.drop(['Species'], axis=1)
+if name == 'dim_reduction':
+    xdf.drop('Petal.Length', axis=1, inplace=True)
+
 X = xdf.to_numpy()
 
 # Targets
@@ -30,7 +35,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 import seaborn as sb
 
 # load model
-model = keras.models.load_model('trained models/original')
+model = keras.models.load_model('trained models/' + name)
 yp = model.predict(X_test)
 pred_labels = np.argmax(yp, axis=1)
 true_labels = np.argmax(y_test, axis=1)

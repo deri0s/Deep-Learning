@@ -12,14 +12,18 @@ PRE-PROCESSING
 # read data
 df = pd.read_csv('iris.csv')
 
+name='original'
+
 # Inputs
 xdf = df.drop(['Species'], axis=1)
-X = xdf.to_numpy()
+if name == 'dim_reduction':
+    xdf.drop('Petal.Length', axis=1, inplace=True)
 
-pp.figure()
-pp.title('Inputs')
-pp.plot(df.index, xdf, label=list(xdf.columns.values))
-pp.legend()
+xdf = df.drop(['Species'], axis=1)
+
+# from 1_data_analysis we know that Petal width can be eliminated
+xdf.drop('Petal.Length', axis=1, inplace=True)
+X = xdf.to_numpy()
 
 # Targets
 # convert output into a categorical variable
@@ -91,6 +95,6 @@ print('\n Model accuracy \n')
 model.evaluate(X_test, y_test)
 
 # save model
-model.save('trained models/original')
+# model.save('trained models/' + name)
 
 pp.show()
